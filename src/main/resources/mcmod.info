@@ -1,0 +1,16 @@
+[
+{
+  "modid": "type19gunsight",
+  "name": "Type 19 Gun Sight",
+  "description": "Adds an elevation-computing gun sight for Minecraft's projectiles.",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "https://github.com/Iunius118/Type19GunSight",
+  "updateUrl": "",
+  "authorList": ["Iunius118"],
+  "credits": "",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}
+]
