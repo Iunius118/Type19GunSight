@@ -12,7 +12,8 @@ import org.apache.logging.log4j.Logger;
 @Mod(   modid = Type19GunSight.MOD_ID,
         name = Type19GunSight.MOD_NAME,
         version = Type19GunSight.MOD_VERSION,
-        guiFactory = "com.github.iunius118.type19gunsight.client.gui.ConfigGuiFactory")
+        guiFactory = "com.github.iunius118.type19gunsight.client.gui.ConfigGuiFactory",
+        clientSideOnly = true)
 @EventBusSubscriber
 public class Type19GunSight {
     public static final String MOD_ID = "type19gunsight";
