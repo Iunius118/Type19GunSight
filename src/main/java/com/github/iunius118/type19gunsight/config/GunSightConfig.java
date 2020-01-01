@@ -11,11 +11,11 @@ public class GunSightConfig {
     @LangKey(Type19GunSight.MOD_ID + ".config.enable")
     public static boolean enable = true;
 
-    @Comment("Color of marker on HUD, in ARGB8888 format")
-    @LangKey(Type19GunSight.MOD_ID + ".config.marker_color")
-    public static int markerColor = 0xFFFFFFFF;
+    @Comment("Color of reticle, integer in ARGB8888 format")
+    @LangKey(Type19GunSight.MOD_ID + ".config.reticle_color")
+    public static int reticleColor = -1; // 0xFFFFFFFF = white
 
-    @Comment("Settings of sights for each item, in JSON {\"id\":\"item_id\", \"v\":initialVelocity[0.0 - 20.0], \"r\":resistanceFactor[0.0 - 2.0], \"g\":gravityFactor[-5.0 - 5.0]}")
+    @Comment("Settings of sights for each item, list of json string {\"id\":\"item_id\", \"v\":initialVelocity[0.0 - 20.0], \"r\":resistanceFactor[0.0 - 2.0], \"g\":gravityFactor[-5.0 - 5.0]}")
     @LangKey(Type19GunSight.MOD_ID + ".config.item_id")
     public static String[] sightSettings = {"{\"id\":\"minecraft:bow\",\"v\":3.0,\"r\":0.99,\"g\":0.05}", "{\"id\":\"mod_id:example\",\"v\":3.0,\"r\":0.99,\"g\":0.03}"};
 }
