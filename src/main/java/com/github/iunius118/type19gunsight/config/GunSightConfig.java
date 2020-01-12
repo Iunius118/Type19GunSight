@@ -6,7 +6,7 @@ import net.minecraftforge.common.config.Config.Comment;
 import net.minecraftforge.common.config.Config.LangKey;
 import net.minecraftforge.common.config.Config.RangeInt;
 
-@Config(modid = Type19GunSight.MOD_ID)
+@Config(modid = Type19GunSight.MOD_ID, category = "client")
 public class GunSightConfig {
     @Comment("Enable Type 19 Gun Sight")
     @LangKey(Type19GunSight.MOD_ID + ".config.enable")
