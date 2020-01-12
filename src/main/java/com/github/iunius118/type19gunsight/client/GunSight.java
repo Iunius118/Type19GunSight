@@ -1,5 +1,6 @@
 package com.github.iunius118.type19gunsight.client;
 
+import com.github.iunius118.type19gunsight.config.GunSightConfig;
 import com.google.gson.*;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
@@ -11,11 +12,12 @@ import java.util.Optional;
 
 public class GunSight {
     public final Item[] items;
-    public final float initialVelocity;
-    public final float resistanceFactor;
-    public final float gravityFactor;
+    public final double initialVelocity;
+    public final double resistanceFactor;
+    public final double gravityFactor;
 
     private final short[] elevationTable;
+    private final static short INVALID_ELEVATION = 0x7FFF;
 
     private final static int MIN_ELEVATION = -90;
     private final static int MAX_ELEVATION = 90;
@@ -51,8 +53,45 @@ public class GunSight {
         return true;
     }
 
+    private void initElevationTable() {
+        int maxElevationIndex = (MAX_ELEVATION - MIN_ELEVATION + 1);
+
+        for (int i = 0; i < maxElevationIndex; i++) {
+            int gunElevation = MIN_ELEVATION + i;
+            Projectile projectile = new Projectile(gunElevation, initialVelocity, resistanceFactor, gravityFactor);
+            double targetElevation = 0;
+            int tick = 0;
+
+            for (Distance markedDistance : Distance.values()) {
+                int tableIndex = i + (markedDistance.ordinal() - Distance.D50.ordinal()) * maxElevationIndex;
+                elevationTable[tableIndex] = INVALID_ELEVATION;
+
+                if (projectile.hasReachedTarget(markedDistance.getDistance())) {
+                    targetElevation = projectile.getElevation(markedDistance.getDistance());
+                    elevationTable[tableIndex] = (short) Math.round(targetElevation * 100);
+                    continue;
+                }
+
+                while (tick < GunSightConfig.maxFlightTick) {
+                    tick++;
+                    projectile.update();
+
+                    if (projectile.hasReachedTarget(markedDistance.getDistance())) {
+                        targetElevation = projectile.getElevation(markedDistance.getDistance());
+                        elevationTable[tableIndex] = (short) Math.round(targetElevation * 100);
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+
     public Optional<GunSight> create() {
-        // TODO: If areArgumentsValid?
+        if (elevationTable.length == 0) {
+            return Optional.empty();
+        }
+
         return Optional.of(this);
     }
 
@@ -79,7 +118,7 @@ public class GunSight {
             float r = JsonUtils.getFloat(jsonObj,"r");
             float g = JsonUtils.getFloat(jsonObj,"g");
 
-            return create(items, v, r, g);
+            result = create(items, v, r, g);
 
         } catch (JsonSyntaxException e) {
             // Print json syntax error to StdErr
@@ -109,15 +148,84 @@ public class GunSight {
         }
 
         // Calculate target elevation
+        float maxEt = elevationTable[maxIndex];
+        float minEt = elevationTable[minIndex];
+
+        if (maxEt == INVALID_ELEVATION || minEt == INVALID_ELEVATION) {
+            return 0;
+        }
+
         float maxRatio = gunElevation - minEg;
         float minRatio = 1 - maxRatio;
-        float maxEt = elevationTable[maxIndex] / 100.0F;
-        float minEt = elevationTable[minIndex] / 100.0F;
 
-        return maxRatio * maxEt + minRatio * minEt;
+        return (maxRatio * maxEt + minRatio * minEt) / 100.0F;
     }
 
     public enum Distance {
-        D50, D100, D150, D200, D250
+        D50(50F), D100(100F), D150(150F), D200(200F), D250(250F);
+
+        private float distance;
+
+        Distance(float dist) {
+            distance = dist;
+        }
+
+        public float getDistance() {
+            return distance;
+        }
+    }
+
+    private static class Projectile {
+        public final double resistanceFactor;
+        public final double gravityFactor;
+        public double vx = 0;
+        public double vy = 0;
+        public double posX = 0;
+        public double posY = 0;
+        public double prevPosX = 0;
+        public double prevPosY = 0;
+        public double distance = 0;
+        public double prevDistance = 0;
+
+        public Projectile(int gunElevation, double initialVelocity, double resistanceFactor, double gravityFactor) {
+            vx = initialVelocity * Math.cos(Math.toRadians(gunElevation));
+            vy = initialVelocity * Math.sin(Math.toRadians(gunElevation));
+            this.resistanceFactor = resistanceFactor;
+            this.gravityFactor = gravityFactor;
+        }
+
+        public void update() {
+            // Save previous tick position
+            prevPosX = posX;
+            prevPosY = posY;
+            prevDistance = distance;
+
+            // Update position
+            posX = posX + vx;
+            posY = posY + vy;
+            distance = Math.sqrt(posX * posX + posY * posY);
+
+            // Update velocity
+            vx = vx * resistanceFactor;
+            vy = vy * resistanceFactor - gravityFactor;
+        }
+
+        public boolean hasReachedTarget(double targetDistance) {
+            return targetDistance >= prevDistance && targetDistance <= distance;
+        }
+
+        public double getElevation(double targetDistance) {
+            double interval = Math.abs(distance - prevDistance);
+
+            if (interval < 0.00001) {
+                return Math.toDegrees(Math.atan2(posY, posX));
+            }
+
+            double ratioNear = Math.abs(targetDistance - distance) / interval;
+            double ratioFar = Math.abs(targetDistance - prevDistance) / interval;
+            double interX = ratioNear * prevPosX + ratioFar * posX;
+            double interY = ratioNear * prevPosY + ratioFar * posY;
+            return Math.toDegrees(Math.atan2(interY, interX));
+        }
     }
 }
