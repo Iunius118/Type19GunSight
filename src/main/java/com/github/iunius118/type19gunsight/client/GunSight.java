@@ -31,7 +31,7 @@ public class GunSight {
         // Check args
         if (areArgumentsValid(initialVelocity, resistanceFactor, gravityFactor)) {
             elevationTable = new short[(MAX_ELEVATION - MIN_ELEVATION + 1) * Distance.values().length];
-            // TODO: Calc degrees?
+            initElevationTable();
         } else {
             elevationTable = new short[0];
         }
