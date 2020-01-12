@@ -91,4 +91,33 @@ public class GunSight {
 
         return result;
     }
+
+    public float getTargetElevation(float gunElevation, Distance distance) {
+        if (gunElevation < MIN_ELEVATION || gunElevation > MAX_ELEVATION) {
+            return 0;
+        }
+
+        // Calculate indices of elevation table
+        int maxEg = (int) Math.ceil(gunElevation);
+        int minEg = (int) Math.floor(gunElevation);
+        int offsetByDistance = (distance.ordinal() - Distance.D50.ordinal()) * (MAX_ELEVATION - MIN_ELEVATION + 1);
+        int maxIndex = maxEg - MIN_ELEVATION + offsetByDistance;
+        int minIndex = minEg - MIN_ELEVATION + offsetByDistance;
+
+        if (minIndex < 0 || maxIndex >= elevationTable.length) {
+            return 0;
+        }
+
+        // Calculate target elevation
+        float maxRatio = gunElevation - minEg;
+        float minRatio = 1 - maxRatio;
+        float maxEt = elevationTable[maxIndex] / 100.0F;
+        float minEt = elevationTable[minIndex] / 100.0F;
+
+        return maxRatio * maxEt + minRatio * minEt;
+    }
+
+    public enum Distance {
+        D50, D100, D150, D200, D250
+    }
 }
