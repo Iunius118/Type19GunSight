@@ -1,4 +1,4 @@
-package com.github.iunius118.type19gunsight;
+package com.github.iunius118.type19gunsight.client;
 
 import com.google.gson.*;
 import net.minecraft.init.Items;
@@ -15,6 +15,11 @@ public class GunSight {
     public final float resistanceFactor;
     public final float gravityFactor;
 
+    private final short[] elevationTable;
+
+    private final static int MIN_ELEVATION = -90;
+    private final static int MAX_ELEVATION = 90;
+
     public GunSight(Item[] items, float initialVelocity, float resistanceFactor, float gravityFactor) {
         this.items = (items != null && items.length > 0) ? items : new Item[]{Items.AIR};
         this.initialVelocity = initialVelocity;
@@ -23,9 +28,10 @@ public class GunSight {
 
         // Check args
         if (areArgumentsValid(initialVelocity, resistanceFactor, gravityFactor)) {
+            elevationTable = new short[(MAX_ELEVATION - MIN_ELEVATION + 1) * Distance.values().length];
             // TODO: Calc degrees?
         } else {
-
+            elevationTable = new short[0];
         }
     }
 

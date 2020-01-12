@@ -1,6 +1,7 @@
 package com.github.iunius118.type19gunsight;
 
 import com.github.iunius118.type19gunsight.client.ClientEventHandler;
+import com.github.iunius118.type19gunsight.client.GunSight;
 import com.github.iunius118.type19gunsight.config.GunSightConfig;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Mod;
@@ -29,6 +30,10 @@ public class Type19GunSight {
 
         if (event.getSide().isClient()) {
             MinecraftForge.EVENT_BUS.register(new ClientEventHandler());
+
+            for (String json : GunSightConfig.sightSettings) {
+                GunSight.create(json);
+            }
         }
     }
 }
