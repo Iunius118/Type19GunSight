@@ -3,12 +3,18 @@ package com.github.iunius118.type19gunsight;
 import com.github.iunius118.type19gunsight.client.ClientEventHandler;
 import com.github.iunius118.type19gunsight.client.GunSight;
 import com.github.iunius118.type19gunsight.config.GunSightConfig;
+import net.minecraft.item.Item;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.Mod.EventHandler;
+import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import org.apache.logging.log4j.Logger;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 
 @Mod(   modid = Type19GunSight.MOD_ID,
         name = Type19GunSight.MOD_NAME,
@@ -23,6 +29,9 @@ public class Type19GunSight {
     public static Logger LOGGER;
 
     public static final GunSightConfig CONFIG = new GunSightConfig();
+    public static final Map<Item, GunSight> GunSights = new HashMap<>();
+    public static Item lastItem;
+    public static GunSight lastSight;
 
     @EventHandler
     public void preInit(FMLPreInitializationEvent event) {
@@ -30,9 +39,24 @@ public class Type19GunSight {
 
         if (event.getSide().isClient()) {
             MinecraftForge.EVENT_BUS.register(new ClientEventHandler());
+        }
+    }
 
-            for (String json : GunSightConfig.sightSettings) {
-                GunSight.create(json);
+    @EventHandler
+    public void postInit(FMLPostInitializationEvent event) {
+        if (event.getSide().isClient()) {
+            initSightSettings();
+        }
+    }
+
+    public static void initSightSettings() {
+        for (String json : GunSightConfig.sightSettings) {
+            Optional<GunSight> sight = GunSight.create(json);
+
+            if (sight.isPresent()) {
+                for (Item item : sight.get().items) {
+                    GunSights.put(item, sight.get());
+                }
             }
         }
     }
