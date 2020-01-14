@@ -17,10 +17,10 @@ public class GunSight {
     public final double gravityFactor;
 
     private final short[] elevationTable;
-    private final static short INVALID_ELEVATION = 0x7FFF;
 
     private final static int MIN_ELEVATION = -90;
     private final static int MAX_ELEVATION = 90;
+    private final static short INVALID_ELEVATION = 0x7FFF;
 
     public GunSight(Item[] items, float initialVelocity, float resistanceFactor, float gravityFactor) {
         this.items = (items != null && items.length > 0) ? items : new Item[]{Items.AIR};
@@ -133,7 +133,7 @@ public class GunSight {
 
     public float getTargetElevation(float gunElevation, Distance distance) {
         if (gunElevation < MIN_ELEVATION || gunElevation > MAX_ELEVATION) {
-            return 0;
+            return Float.NaN;
         }
 
         // Calculate indices of elevation table
@@ -144,7 +144,7 @@ public class GunSight {
         int minIndex = minEg - MIN_ELEVATION + offsetByDistance;
 
         if (minIndex < 0 || maxIndex >= elevationTable.length) {
-            return 0;
+            return Float.NaN;
         }
 
         // Calculate target elevation
@@ -152,7 +152,7 @@ public class GunSight {
         float minEt = elevationTable[minIndex];
 
         if (maxEt == INVALID_ELEVATION || minEt == INVALID_ELEVATION) {
-            return 0;
+            return Float.NaN;
         }
 
         float maxRatio = gunElevation - minEg;
