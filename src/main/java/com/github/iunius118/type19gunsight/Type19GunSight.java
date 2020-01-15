@@ -30,8 +30,10 @@ public class Type19GunSight {
 
     public static final GunSightConfig CONFIG = new GunSightConfig();
     public static final Map<Item, GunSight> GunSights = new HashMap<>();
-    public static Item lastItem;
-    public static GunSight lastSight;
+    public static Item lastMainHandItem;
+    public static Item lastOffHandItem;
+    public static GunSight lastMainHandSight;
+    public static GunSight lastOffHandSight;
 
     @EventHandler
     public void preInit(FMLPreInitializationEvent event) {

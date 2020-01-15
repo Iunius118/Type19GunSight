@@ -16,6 +16,7 @@ public class GunSight {
     public final double resistanceFactor;
     public final double gravityFactor;
 
+    /* up = +, down = - */
     private final short[] elevationTable;
 
     private final static int MIN_ELEVATION = -90;
@@ -131,6 +132,7 @@ public class GunSight {
         return result;
     }
 
+    /* up = +, down = - */
     public float getTargetElevation(float gunElevation, Distance distance) {
         if (gunElevation < MIN_ELEVATION || gunElevation > MAX_ELEVATION) {
             return Float.NaN;
@@ -165,13 +167,19 @@ public class GunSight {
         D50(50F), D100(100F), D150(150F), D200(200F), D250(250F);
 
         private float distance;
+        private String label;
 
         Distance(float dist) {
             distance = dist;
+            label = Integer.toString((int) dist);
         }
 
         public float getDistance() {
             return distance;
+        }
+
+        public String getLabel() {
+            return label;
         }
     }
 
