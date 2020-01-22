@@ -40,30 +40,71 @@ public class Type19GunSightHUDRenderer {
         GlStateManager.color(red, green, blue, alpha);
         GlStateManager.glLineWidth(1.0F);
 
+        int outerOffsetX = (int) (width * 0.0125);
+        int innerOffsetX = (int) (width * 0.003125);
+        int halfWidth = (int) width / 2;
+        double topReticleY = height * 0.5;
+        double bottomReticleY = height * 0.5;
+
+        // Draw each distance
         for (GunSight.Distance distance : GunSight.Distance.values()) {
             double elevation = sight.getTargetElevation(-pitch, distance);
 
+            if (Double.isNaN(elevation)) {
+                continue;
+            }
+
             double angle = elevation + pitch;
 
-            if (angle < -60.0D || angle > 60.0D) {
+            if (angle < -60.0D) {
+                bottomReticleY = height;
+                continue;
+
+            } else if (angle > 60.0D) {
+                topReticleY = 0;
                 continue;
             }
 
             double y = (1 - Math.tan(angle * Math.PI / 180.0D) * cotHalfFOV) * height / 2;
 
+            if (y > height) {
+                bottomReticleY = height;
+
+            } else if (y < 0) {
+                topReticleY = 0;
+
+            } else  if (bottomReticleY < y) {
+                bottomReticleY = y;
+
+            } else if (topReticleY > y) {
+                topReticleY = y;
+            }
+
             GlStateManager.disableTexture2D();
 
             vertexBuffer.begin(GL11.GL_LINES, DefaultVertexFormats.POSITION);
-            vertexBuffer.pos(width * 0.4875D, y, 0.0D).endVertex();
-            vertexBuffer.pos(width * 0.496875D, y, 0.0D).endVertex();
-            vertexBuffer.pos(width * 0.503125D, y, 0.0D).endVertex();
-            vertexBuffer.pos(width * 0.5125D, y, 0.0D).endVertex();
+            vertexBuffer.pos(halfWidth - outerOffsetX + 0.5, y, 0).endVertex();
+            vertexBuffer.pos(halfWidth - innerOffsetX + 0.5, y, 0).endVertex();
+            vertexBuffer.pos(halfWidth + innerOffsetX + 1, y, 0).endVertex();
+            vertexBuffer.pos(halfWidth + outerOffsetX + 1, y, 0).endVertex();
             tessellator.draw();
 
             GlStateManager.enableTexture2D();
 
             fontRenderer.drawString(distance.getLabel(), (float) width * 0.525F, (float) y - fontRenderer.FONT_HEIGHT / 2.0F, GunSightConfig.reticleColor, false);
         }
+
+        // Draw vertical reticle
+        GlStateManager.disableTexture2D();
+
+        vertexBuffer.begin(GL11.GL_LINES, DefaultVertexFormats.POSITION);
+        vertexBuffer.pos(halfWidth - innerOffsetX + 0.5, topReticleY + 0.5, 0).endVertex();
+        vertexBuffer.pos(halfWidth - innerOffsetX + 0.5, bottomReticleY, 0).endVertex();
+        vertexBuffer.pos(halfWidth + innerOffsetX + 1, topReticleY + 0.5, 0).endVertex();
+        vertexBuffer.pos(halfWidth + innerOffsetX + 1, bottomReticleY, 0).endVertex();
+        tessellator.draw();
+
+        GlStateManager.enableTexture2D();
 
         GlStateManager.enableDepth();
     }
