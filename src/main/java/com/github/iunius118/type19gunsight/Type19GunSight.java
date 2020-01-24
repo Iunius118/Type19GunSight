@@ -25,7 +25,7 @@ import java.util.Optional;
 public class Type19GunSight {
     public static final String MOD_ID = "type19gunsight";
     public static final String MOD_NAME = "Type 19 Gun Sight";
-    public static final String MOD_VERSION = "1.12.2-0.0.1.0";
+    public static final String MOD_VERSION = "1.12.2-0.0.2.0";
     public static Logger LOGGER;
 
     public static final GunSightConfig CONFIG = new GunSightConfig();
